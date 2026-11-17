@@ -1,6 +1,10 @@
 <script setup>
 import { Link, router } from "@inertiajs/vue3";
 import { ref } from "vue";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import Button from "@/components/ui/button/Button.vue";
 
 const title = ref("");
 const description = ref("");
@@ -21,13 +25,19 @@ function submit() {
     <h1>Create Courses</h1>
 
     <form @submit.prevent="submit">
-        <input v-model="title" placeholder="Title" />
+        <Input v-model="title" placeholder="Title" />
         <p v-if="props.errors.title" style="color: red">
             {{ props.errors.title }}
         </p>
-        <textarea v-model="description" placeholder="Description"></textarea>
-        <button type="submit">Create</button>
+        <Label for="description">Description</Label>
+        <Textarea
+            id="description"
+            v-model="description"
+            placeholder="Description"
+        ></Textarea>
+        <Button type="submit">Create</Button>
     </form>
-
-    <Link href="/courses"> Back to Courses </Link>
+    <Button as-child variant="outline">
+        <Link href="/courses"> Back to Courses </Link>
+    </Button>
 </template>

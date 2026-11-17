@@ -1,5 +1,8 @@
 <script setup>
 import { Head, useForm } from "@inertiajs/vue3";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 defineOptions({
     layout: null,
@@ -18,18 +21,41 @@ function submit() {
 <template>
     <Head title="Login" />
 
-    <h1>Login</h1>
+    <div class="mx-auto max-w-md p-6">
+        <h1 class="mb-6 text-2xl font-semibold">Login</h1>
 
-    <form @submit.prevent="submit">
-        <label>Email</label>
-        <input v-model="form.email" type="email" />
-        <div v-if="form.errors.email" class="text-red-500 text-xs italic mt-1">
-            {{ form.errors.email }}
-        </div>
+        <form class="space-y-4" @submit.prevent="submit">
+            <div class="space-y-2">
+                <Label for="email">Email</Label>
 
-        <label>Password</label>
-        <input v-model="form.password" type="password" />
+                <Input
+                    id="email"
+                    v-model="form.email"
+                    type="email"
+                    placeholder="Email"
+                />
 
-        <button :disabled="form.processing">Login</button>
-    </form>
+                <p v-if="form.errors.email" class="text-sm text-red-500">
+                    {{ form.errors.email }}
+                </p>
+            </div>
+
+            <div class="space-y-2">
+                <Label for="password">Password</Label>
+
+                <Input
+                    id="password"
+                    v-model="form.password"
+                    type="password"
+                    placeholder="Password"
+                />
+
+                <p v-if="form.errors.password" class="text-sm text-red-500">
+                    {{ form.errors.password }}
+                </p>
+            </div>
+
+            <Button type="submit" :disabled="form.processing"> Login </Button>
+        </form>
+    </div>
 </template>
