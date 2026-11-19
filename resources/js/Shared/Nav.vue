@@ -25,6 +25,9 @@ const user = computed(() => page.props.auth.user);
 
         <div class="ml-auto flex items-center gap-2">
             <template v-if="user">
+                <span class="hidden sm:inline text-sm text-muted-foreground">
+                    Welcome back, {{ user.name }}
+                </span>
                 <Button as-child variant="destructive">
                     <Link href="/logout" method="post">
                         <LogOut class="mr-2 h-4 w-4" />

@@ -56,6 +56,7 @@ function loadMore() {
         },
     });
 }
+
 function confirmDelete() {
     router.delete(`/courses/${courseToDelete.value.id}`, {
         onSuccess: () => {
@@ -67,6 +68,7 @@ function confirmDelete() {
         },
     });
 }
+
 const courseToDelete = ref(null);
 </script>
 <template>

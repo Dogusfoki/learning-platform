@@ -37,7 +37,11 @@ Route::middleware('auth')->group(function () {
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
         ]);
-        Course::create($data);
+
+        Course::create([
+        ...$data,
+        'user_id' => auth()->id(),
+        ]);
         return redirect()->route('courses.index')->with('success', 'Course created!');
     })->name('courses.store');
 
