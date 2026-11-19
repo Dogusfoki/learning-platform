@@ -27,6 +27,51 @@ Route::middleware('auth')->group(function () {
     });
 
     Route::post('/logout', [LoginController::class, 'destroy'])->name('logout');
+
+    Route::get('/courses/create', function () {
+        return Inertia::render('Courses/Create');
+    })->name('courses.create');
+
+    Route::post('/courses', function () {
+        $data = request()->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
+        ]);
+        Course::create($data);
+        return redirect()->route('courses.index')->with('success', 'Course created!');
+    })->name('courses.store');
+
+    Route::get('/courses/{course}/edit', function (Course $course) {
+        return Inertia::render('Courses/Edit', [
+            'course' => $course,
+        ]);
+    })->name('courses.edit');
+
+    Route::put('courses/{course}', function (Course $course) {
+        $data = request()->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string'
+        ]);
+        $course->update($data);
+        return redirect()->route('courses.index')->with('success', 'Course updated!');
+    })->name('course.update');
+
+    Route::delete('/courses/{course}', function (Course $course) {
+        $course->delete();
+        return redirect()->route('courses.index')->with('success', 'Course deleted!');
+    })->name('courses.destroy');
+
+    Route::get('/courses', function () {
+        return Inertia::render('Courses/Index', [
+            'courses' => fn () => App\Models\Course::paginate(10),
+            'topics' => fn () => App\Models\Topic::all()->groupBy('course_id'),]);
+    })->name('courses.index');
+
+    Route::get('/topics/{topic}', function (Topic $topic) {
+        return Inertia::render('Topics/Show', [
+            'topic' => $topic,
+            ]);
+    })->name('topics.show');
 });
 
 Route::get('/register', [RegisterController::class, 'create'])->name('register');
@@ -36,53 +81,5 @@ Route::post('/register', [RegisterController::class, 'store'])->name('register.s
 Route::get('dashboard', function () {
     return Inertia::render('Dashboard', [
         'projects' => fn () => App\Models\Project::withCount('comments')->get(),
-    ]);
+        ]);
 })->middleware(['auth', 'verified'])->name('dashboard');
-
-Route::get('/courses', function () {
-    return Inertia::render('Courses/Index', [
-        'courses' => fn () => App\Models\Course::paginate(10),
-        'topics' => fn () => App\Models\Topic::all()->groupBy('course_id'),]);
-})->name('courses.index');
-
-Route::get('/topics/{topic}', function (Topic $topic) {
-    return Inertia::render('Topics/Show', [
-        'topic' => $topic,
-    ]);
-})->name('topics.show');
-
-Route::get('/courses/create', function () {
-    return Inertia::render('Courses/Create');
-})->name('courses.create');
-
-Route::post('/courses', function () {
-    $data = request()->validate([
-        'title' => 'required|string|max:255',
-        'description' => 'nullable|string',
-    ]);
-    Course::create($data);
-
-    return redirect()->route('courses.index')->with('success', 'Course created!');
-})->name('courses.store');
-
-Route::get('/courses/{course}/edit', function (Course $course) {
-    return Inertia::render('Courses/Edit', [
-        'course' => $course,
-    ]);
-})->name('courses.edit');
-
-Route::put('courses/{course}', function (Course $course) {
-    $data = request()->validate([
-        'title' => 'required|string|max:255',
-        'description' => 'nullable|string'
-    ]);
-
-    $course->update($data);
-    return redirect()->route('courses.index')->with('success', 'Course updated!');
-})->name('course.update');
-
-Route::delete('/courses/{course}', function (Course $course) {
-    $course->delete();
-
-    return redirect()->route('courses.index')->with('success', 'Course deleted!');
-})->name('courses.destroy');
