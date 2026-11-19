@@ -19,6 +19,18 @@ watch(
     },
     { immediate: true },
 );
+
+watch(
+    () => page.props.errors?.topic_limit,
+    (message) => {
+        if (message) {
+            toast.error(message, {
+                duration: 3000,
+            });
+        }
+    },
+    { immediate: true },
+);
 </script>
 
 <template>

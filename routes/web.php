@@ -45,13 +45,16 @@ Route::middleware('auth')->group(function () {
         return redirect()->route('courses.index')->with('success', 'Course created!');
     })->name('courses.store');
 
+
     Route::get('/courses/{course}/edit', function (Course $course) {
+        abort_unless($course->user_id === auth()->id(), 403);
         return Inertia::render('Courses/Edit', [
             'course' => $course,
         ]);
     })->name('courses.edit');
 
     Route::put('courses/{course}', function (Course $course) {
+        abort_unless($course->user_id === auth()->id(), 403);
         $data = request()->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string'
@@ -61,19 +64,41 @@ Route::middleware('auth')->group(function () {
     })->name('course.update');
 
     Route::delete('/courses/{course}', function (Course $course) {
+        abort_unless($course->user_id === auth()->id(), 403);
         $course->delete();
         return redirect()->route('courses.index')->with('success', 'Course deleted!');
     })->name('courses.destroy');
 
+    Route::post('/courses/{course}/topics', function (Course $course) {
+        abort_unless($course->user_id === auth()->id(), 403);
+
+        if ($course->topics()->count() >= 2) {
+            return redirect()
+                ->back()
+                ->withErrors([
+                    'topic_limit' => 'This course can have a maximum of 2 topics.',
+                ]);
+        }
+
+        $data = request()->validate([
+            'title' => 'required|string|max:150',
+        ]);
+
+        $course->topics()->create($data);
+
+        return redirect()->route('courses.index')->with('success', 'Topic created!');
+    })->name('courses.topics.store');
+
     Route::get('/courses', function () {
         return Inertia::render('Courses/Index', [
-            'courses' => fn () => App\Models\Course::paginate(10),
+            'courses' => fn () => App\Models\Course::where('user_id', auth()->id())->paginate(10),
             'topics' => fn () => App\Models\Topic::all()->groupBy('course_id'),]);
     })->name('courses.index');
 
     Route::get('/topics/{topic}', function (Topic $topic) {
         return Inertia::render('Topics/Show', [
             'topic' => $topic,
+            'course' => $topic->course,
             ]);
     })->name('topics.show');
 });

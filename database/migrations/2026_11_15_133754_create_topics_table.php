@@ -12,7 +12,7 @@ return new class () extends Migration {
     {
         Schema::create('topics', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('course_id')->constrained()->cascadeOndelete();
+            $table->foreignId('course_id')->constrained()->cascadeOnDelete();
             $table->string('title');
             $table->timestamps();
         });

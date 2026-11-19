@@ -27,6 +27,8 @@ import {
     CardFooter,
     CardDescription,
 } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 const props = defineProps({
     courses: {
@@ -44,9 +46,31 @@ const allCourses = ref(props.courses.data);
 watch(
     () => props.courses,
     (newCourses) => {
-        allCourses.value = allCourses.value.concat(newCourses.data);
+        const existingIds = new Set(
+            allCourses.value.map((course) => course.id),
+        );
+
+        const newItems = newCourses.data.filter(
+            (course) => !existingIds.has(course.id),
+        );
+
+        allCourses.value = [...allCourses.value, ...newItems];
     },
 );
+
+function createTopic(course) {
+    const title = topicForms.value[course.id];
+
+    if (!title) {
+        return;
+    }
+
+    router.post(`/courses/${course.id}/topics`, {
+        title,
+    });
+
+    topicForms.value[course.id] = "";
+}
 
 function loadMore() {
     router.reload({
@@ -70,6 +94,8 @@ function confirmDelete() {
 }
 
 const courseToDelete = ref(null);
+
+const topicForms = ref({});
 </script>
 <template>
     <Card>
@@ -150,16 +176,41 @@ const courseToDelete = ref(null);
                         </TableCell>
 
                         <TableCell>
-                            <ul>
-                                <li
-                                    v-for="topic in topics[course.id]"
-                                    :key="topic.id"
+                            <div class="space-y-2">
+                                <div
+                                    v-if="topics[course.id]?.length"
+                                    class="flex flex-wrap gap-1.5"
                                 >
-                                    <Link :href="`/topics/${topic.id}`">
+                                    <Link
+                                        v-for="topic in topics[course.id]"
+                                        :key="topic.id"
+                                        :href="`/topics/${topic.id}`"
+                                        class="inline-flex items-center rounded-full border bg-muted px-2.5 py-0.5 text-xs font-medium text-muted-foreground transition hover:bg-accent hover:text-accent-foreground"
+                                    >
                                         {{ topic.title }}
                                     </Link>
-                                </li>
-                            </ul>
+                                </div>
+
+                                <form
+                                    class="flex items-center gap-2"
+                                    @submit.prevent="createTopic(course)"
+                                >
+                                    <Input
+                                        :id="`topic-title-${course.id}`"
+                                        v-model="topicForms[course.id]"
+                                        placeholder="New topic"
+                                        class="h-8 text-sm"
+                                    />
+
+                                    <Button
+                                        type="submit"
+                                        variant="outline"
+                                        size="sm"
+                                    >
+                                        Add
+                                    </Button>
+                                </form>
+                            </div>
                         </TableCell>
                     </TableRow>
                 </TableBody>
