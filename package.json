@@ -20,7 +20,7 @@
     },
     "dependencies": {
         "@inertiajs/vue3": "^3.11.0",
-        "@lucide/vue": "^1.74.0",
+        "@lucide/vue": "^1.76.0",
         "@vueuse/core": "^15.0.0",
         "class-variance-authority": "^0.7.1",
         "cn": "^0.5.2",
