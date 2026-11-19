@@ -84,11 +84,19 @@ const courseToDelete = ref(null);
                     <TableRow>
                         <TableHead>Title</TableHead>
                         <TableHead>Actions</TableHead>
-                        <TableHead>Topics</TableHead>
+                        <TableHead class="w-65">Topics</TableHead>
                     </TableRow>
                 </TableHeader>
 
                 <TableBody>
+                    <TableRow v-if="allCourses.length === 0">
+                        <TableCell
+                            colspan="3"
+                            class="py-10 text-center text-muted-foreground"
+                        >
+                            No courses yet.
+                        </TableCell>
+                    </TableRow>
                     <TableRow v-for="course in allCourses" :key="course.id">
                         <TableCell>
                             {{ course.title }}
@@ -155,7 +163,7 @@ const courseToDelete = ref(null);
                 </TableBody>
             </Table>
         </CardContent>
-        <CardFooter>
+        <CardFooter class="justify-between">
             <Button
                 variant="outline"
                 v-if="props.courses.current_page < props.courses.last_page"

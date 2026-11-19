@@ -6,6 +6,15 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardFooter,
+    CardHeader,
+    CardTitle,
+} from "@/components/ui/card";
+
 const props = defineProps({
     course: Object,
     errors: Object,
@@ -21,24 +30,33 @@ function submit() {
 }
 </script>
 <template>
-    <h1>Edit Course</h1>
-
-    <form @submit.prevent="submit">
-        <Label for="title">Title</Label>
-        <Input id="title" v-model="title" placeholder="Title" />
-        <p v-if="props.errors.title" style="color: red">
-            {{ props.errors.title }}
-        </p>
-        <Label for="description">Description</Label>
-        <Textarea
-            id="description"
-            v-model="description"
-            placeholder="Description"
-        ></Textarea>
-
-        <Button type="submit">Update</Button>
-    </form>
-    <Button as-child variant="outline">
-        <Link href="/courses">Back to Courses</Link>
-    </Button>
+    <Card>
+        <CardHeader>
+            <CardTitle>Edit Course</CardTitle>
+            <CardDescription class="mt-2">
+                Update the course details</CardDescription
+            >
+        </CardHeader>
+        <CardContent>
+            <form @submit.prevent="submit" class="space-y-4">
+                <Label for="title">Title</Label>
+                <Input id="title" v-model="title" placeholder="Title" />
+                <p v-if="props.errors.title" class="text-sm text-red-500">
+                    {{ props.errors.title }}
+                </p>
+                <Label for="description">Description</Label>
+                <Textarea
+                    id="description"
+                    v-model="description"
+                    placeholder="Description"
+                ></Textarea>
+                <CardFooter>
+                    <Button type="submit">Update</Button>
+                    <Button as-child variant="outline">
+                        <Link href="/courses">Back to Courses</Link>
+                    </Button>
+                </CardFooter>
+            </form>
+        </CardContent>
+    </Card>
 </template>
