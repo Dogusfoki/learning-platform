@@ -96,6 +96,23 @@ function confirmDelete() {
 const courseToDelete = ref(null);
 
 const topicForms = ref({});
+
+const topicToDelete = ref(null);
+function openDeleteDialog(topic) {
+    topicToDelete.value = topic;
+}
+
+function closeDeleteDialog() {
+    topicToDelete.value = null;
+}
+
+function deleteTopic() {
+    if (!topicToDelete.value) return;
+
+    router.delete(`/topics/${topicToDelete.value.id}`, {
+        onSuccess: () => closeDeleteDialog(),
+    });
+}
 </script>
 <template>
     <Card>
@@ -181,14 +198,28 @@ const topicForms = ref({});
                                     v-if="topics[course.id]?.length"
                                     class="flex flex-wrap gap-1.5"
                                 >
-                                    <Link
+                                    <div
                                         v-for="topic in topics[course.id]"
                                         :key="topic.id"
-                                        :href="`/topics/${topic.id}`"
-                                        class="inline-flex items-center rounded-full border bg-muted px-2.5 py-0.5 text-xs font-medium text-muted-foreground transition hover:bg-accent hover:text-accent-foreground"
+                                        class="inline-flex items-center gap-1 rounded-full border bg-muted px-2.5 py-0.5 text-xs font-medium text-muted-foreground"
                                     >
-                                        {{ topic.title }}
-                                    </Link>
+                                        <Link
+                                            :href="`/topics/${topic.id}`"
+                                            class="hover:text-accent-foreground"
+                                        >
+                                            {{ topic.title }}
+                                        </Link>
+
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            type="button"
+                                            class="text-muted-foreground transition hover:text-destructive"
+                                            @click="openDeleteDialog(topic)"
+                                        >
+                                            X
+                                        </Button>
+                                    </div>
                                 </div>
 
                                 <form
@@ -230,4 +261,27 @@ const topicForms = ref({});
             </Button>
         </CardFooter>
     </Card>
+    <Dialog :open="topicToDelete !== null" @update:open="closeDeleteDialog">
+        <DialogContent class="sm:max-w-md">
+            <DialogHeader>
+                <DialogTitle>Delete topic</DialogTitle>
+
+                <DialogDescription>
+                    Are you sure you want to delete
+                    <span class="font-medium"> {{ topicToDelete?.title }} </span
+                    >?
+                </DialogDescription>
+            </DialogHeader>
+
+            <DialogFooter>
+                <Button variant="outline" @click="closeDeleteDialog">
+                    Cancel
+                </Button>
+
+                <Button variant="destructive" @click="deleteTopic">
+                    Delete
+                </Button>
+            </DialogFooter>
+        </DialogContent>
+    </Dialog>
 </template>

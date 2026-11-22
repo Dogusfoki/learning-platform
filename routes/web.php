@@ -103,6 +103,16 @@ Route::middleware('auth')->group(function () {
     })->name('topics.show');
 });
 
+Route::delete('/topics/{topic}', function (Topic $topic) {
+    abort_unless($topic->course->user_id === auth()->id(), 403);
+
+    $topic->delete();
+
+    return redirect()
+        ->route('courses.index')
+        ->with('success', 'Topic deleted!');
+})->name('topics.destroy');
+
 Route::get('/register', [RegisterController::class, 'create'])->name('register');
 Route::post('/register', [RegisterController::class, 'store'])->name('register.store');
 
