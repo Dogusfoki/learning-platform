@@ -4,7 +4,9 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\UserController;
 use App\Models\Course;
+use App\Models\Lesson;
 use App\Models\Topic;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -96,6 +98,7 @@ Route::middleware('auth')->group(function () {
     })->name('courses.index');
 
     Route::get('/topics/{topic}', function (Topic $topic) {
+        $topic->load('lessons');
         return Inertia::render('Topics/Show', [
             'topic' => $topic,
             'course' => $topic->course,
@@ -112,6 +115,31 @@ Route::delete('/topics/{topic}', function (Topic $topic) {
         ->route('courses.index')
         ->with('success', 'Topic deleted!');
 })->name('topics.destroy');
+
+Route::post('/topics/{topic}/lessons', function (Topic $topic, Request $request) {
+    abort_unless($topic->course?->user_id === auth()->id(), 403);
+
+    $validated = $request->validate([
+        'title' => 'required|string|max:255',
+        'content' => 'required|string',
+    ]);
+
+    $topic->lessons()->create($validated);
+
+    return redirect()
+        ->route('topics.show', $topic)
+        ->with('success', 'Lesson created!');
+})->name('topics.lessons.store');
+
+Route::delete('/lessons/{lesson}', function (Lesson $lesson) {
+    abort_unless($lesson->topic->course?->user_id === auth()->id(), 403);
+
+    $lesson->delete();
+
+    return redirect()
+        ->route('topics.show', $lesson->topic)
+        ->with('success', 'Lesson deleted!');
+})->name('lessons.destroy');
 
 Route::get('/register', [RegisterController::class, 'create'])->name('register');
 Route::post('/register', [RegisterController::class, 'store'])->name('register.store');
