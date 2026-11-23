@@ -117,14 +117,31 @@ Route::delete('/topics/{topic}', function (Topic $topic) {
 })->name('topics.destroy');
 
 Route::post('/topics/{topic}/lessons', function (Topic $topic, Request $request) {
+
     abort_unless($topic->course?->user_id === auth()->id(), 403);
 
     $validated = $request->validate([
         'title' => 'required|string|max:255',
         'content' => 'required|string',
+        'video' => [
+        'nullable',
+        'file',
+        'mimetypes:video/mp4,video/webm,video/ogg,video/quicktime',
+        'max:51200',
+],
     ]);
 
-    $topic->lessons()->create($validated);
+    $videoPath = null;
+
+    if ($request->hasFile('video')) {
+        $videoPath = $request->file('video')->store('videos', 'public');
+    }
+
+    $topic->lessons()->create([
+        'title' => $validated['title'],
+        'content' => $validated['content'],
+        'video_path' => $videoPath,
+    ]);
 
     return redirect()
         ->route('topics.show', $topic)

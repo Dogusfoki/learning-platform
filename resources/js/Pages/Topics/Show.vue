@@ -1,5 +1,5 @@
 <script setup>
-import { Link, router } from "@inertiajs/vue3";
+import { Link, router, useForm } from "@inertiajs/vue3";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -22,12 +22,13 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog";
-
 import { ref } from "vue";
+
 const props = defineProps({
     topic: Object,
     course: Object,
 });
+const showCreateLessonDialog = ref(false);
 
 const topicToDelete = ref(false);
 
@@ -49,16 +50,36 @@ const showCreateLessonsDialog = ref(false);
 const lessonForm = ref({
     title: "",
     content: "",
+    video: null,
 });
 
 const createLesson = () => {
-    router.post(`/topics/${props.topic.id}/lessons`, lessonForm.value, {
+    console.log("video in form:", lessonForm.value.video);
+    const data = new FormData();
+
+    data.append("title", lessonForm.value.title);
+    data.append("content", lessonForm.value.content);
+
+    if (lessonForm.value.video) {
+        data.append("video", lessonForm.value.video);
+    }
+
+    console.log("createLesson called");
+
+    router.post(`/topics/${props.topic.id}/lessons`, data, {
         onSuccess: () => {
+            console.log("success");
+
             showCreateLessonDialog.value = false;
+
             lessonForm.value = {
                 title: "",
                 content: "",
+                video: null,
             };
+        },
+        onError: (errors) => {
+            console.log("errors:", errors);
         },
     });
 };
@@ -96,22 +117,31 @@ const deleteLesson = (lesson) => {
                     <div
                         v-for="lesson in topic.lessons"
                         :key="lesson.id"
-                        class="flex items-start justify-between gap-4 rounded-md border p-3"
+                        class="rounded-md border p-3"
                     >
-                        <div>
-                            <p class="font-medium">{{ lesson.title }}</p>
-                            <p class="text-sm text-muted-foreground">
-                                {{ lesson.content }}
-                            </p>
+                        <div class="flex items-start justify-between gap-4">
+                            <div>
+                                <p class="font-medium">{{ lesson.title }}</p>
+                                <p class="text-sm text-muted-foreground">
+                                    {{ lesson.content }}
+                                </p>
+                            </div>
+
+                            <Button
+                                variant="destructive"
+                                size="sm"
+                                @click="deleteLesson(lesson)"
+                            >
+                                X
+                            </Button>
                         </div>
 
-                        <Button
-                            variant="destructive"
-                            size="sm"
-                            @click="deleteLesson(lesson)"
-                        >
-                            X
-                        </Button>
+                        <video
+                            v-if="lesson.video_path"
+                            :src="`/storage/${lesson.video_path}`"
+                            controls
+                            class="mt-3 w-full rounded-md"
+                        ></video>
                     </div>
                 </div>
 
@@ -159,7 +189,7 @@ const deleteLesson = (lesson) => {
     </Dialog>
     <Dialog v-model:open="showCreateLessonDialog">
         <DialogTrigger as-child>
-            <Button>Add lesson</Button>
+            <Button @click="showCreateLessonDialog = true"> Add Lesson </Button>
         </DialogTrigger>
 
         <DialogContent>
@@ -189,6 +219,22 @@ const deleteLesson = (lesson) => {
                         v-model="lessonForm.content"
                         placeholder="Lesson content"
                         required
+                    />
+                </div>
+
+                <div class="space-y-2">
+                    <Label for="video">Video</Label>
+                    <Input
+                        id="video"
+                        type="file"
+                        accept="video/mp4,video/webm,video/ogg,video/quicktime"
+                        @change="
+                            lessonForm.video = $event.target.files[0];
+                            console.log(
+                                'selected video:',
+                                $event.target.files[0],
+                            );
+                        "
                     />
                 </div>
 

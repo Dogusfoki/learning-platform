@@ -8,9 +8,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Lesson extends Model
 {
     protected $fillable = [
-        'title',
-        'content',
-    ];
+    'topics_id',
+    'title',
+    'content',
+    'video_path',
+];
 
     public function topic(): BelongsTo
     {
