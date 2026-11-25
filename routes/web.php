@@ -8,6 +8,7 @@ use App\Models\Lesson;
 use App\Models\Topic;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
 Route::get('/', function () {
@@ -148,9 +149,12 @@ Route::post('/topics/{topic}/lessons', function (Topic $topic, Request $request)
         ->with('success', 'Lesson created!');
 })->name('topics.lessons.store');
 
+
 Route::delete('/lessons/{lesson}', function (Lesson $lesson) {
     abort_unless($lesson->topic->course?->user_id === auth()->id(), 403);
-
+    if ($lesson->video_path) {
+        Storage::disk('public')->delete($lesson->video_path);
+    }
     $lesson->delete();
 
     return redirect()
