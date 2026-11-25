@@ -23,6 +23,9 @@ import {
     DialogTrigger,
 } from "@/components/ui/dialog";
 import { ref } from "vue";
+import LessonVideo from "@/components/LessonVideo.vue";
+
+const showSize = ref(true);
 
 const props = defineProps({
     topic: Object,
@@ -136,12 +139,10 @@ const deleteLesson = (lesson) => {
                             </Button>
                         </div>
 
-                        <video
+                        <LessonVideo
                             v-if="lesson.video_path"
-                            :src="`/storage/${lesson.video_path}`"
-                            controls
-                            class="mt-3 w-full rounded-md"
-                        ></video>
+                            :lesson="lesson"
+                        />
                     </div>
                 </div>
 
