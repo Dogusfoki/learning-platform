@@ -57,7 +57,6 @@ const lessonForm = ref({
 });
 
 const createLesson = () => {
-    console.log("video in form:", lessonForm.value.video);
     const data = new FormData();
 
     data.append("title", lessonForm.value.title);
@@ -66,8 +65,6 @@ const createLesson = () => {
     if (lessonForm.value.video) {
         data.append("video", lessonForm.value.video);
     }
-
-    console.log("createLesson called");
 
     router.post(`/topics/${props.topic.id}/lessons`, data, {
         onSuccess: () => {
@@ -81,9 +78,7 @@ const createLesson = () => {
                 video: null,
             };
         },
-        onError: (errors) => {
-            console.log("errors:", errors);
-        },
+        onError: (errors) => {},
     });
 };
 
